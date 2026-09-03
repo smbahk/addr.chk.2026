@@ -1,0 +1,79 @@
+{
+  "company": "내가시스템",
+  "slug": "nega",
+  "baseDate": "2026-07-16",
+  "weekStart": "2026-07-10",
+  "weekEnd": "2026-07-16",
+  "uploadedAt": "2026-07-17T03:42:17.183Z",
+  "reportText": {
+    "reporter": "유승현",
+    "weeklyWork": "- 스마트KAIS 계정신청\r\n- 안전관리강화 및 예방계획서 작성\r\n- 안전관리교육 실시",
+    "plan": "- 작업지역 확인 및 안정장비 점검",
+    "note": ""
+  },
+  "regions": [
+    {
+      "sido": "경기도",
+      "sigungu": "김포시",
+      "target": 1959,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "성남시 분당구",
+      "target": 11054,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "성남시 수정구",
+      "target": 450,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "성남시 중원구",
+      "target": 20,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "서울특별시",
+      "sigungu": "금천구",
+      "target": 73,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "서울특별시",
+      "sigungu": "서대문구",
+      "target": 163,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "서울특별시",
+      "sigungu": "영등포구",
+      "target": 211,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    }
+  ]
+}
