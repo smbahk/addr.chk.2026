@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>업로드 · 기초번호판 보고 시스템</title>
+<link rel="icon" href="data:,">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+.co-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+@media(min-width:600px){.co-grid{grid-template-columns:repeat(3,1fr);}}
+.co-card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;}
+.co-card.done{border-color:var(--green);}
+.co-card.missing{border-color:#E4E8EE;}
+.co-name{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.co-status{font-size:11px;font-weight:700;}
+.co-status.done{color:var(--green);}
+.co-status.missing{color:var(--muted);}
+.co-time{font-size:10px;color:var(--muted);margin-top:2px;}
+.co-card.done .co-name::before{content:"✅ ";}
+.co-card.missing .co-name::before{content:"⏳ ";}
+.rollback-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);}
+.rollback-row:last-child{border-bottom:none;}
+.period-tag{font-size:11px;background:var(--lblue);color:var(--navy);font-weight:700;padding:3px 8px;border-radius:6px;flex:none;}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="titles">
+    <h1>업로드 · 데이터 관리</h1>
+    <div class="sub" id="appSub">주간 실적 파일을 업로드하세요</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 업로드 현황 -->
+  <div class="section-title">업로드 현황
+    <div style="display:flex;align-items:center;gap:8px;">
+      <select id="statusWeekSelect" style="font-size:12px;font-weight:700;padding:4px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;background:#fff;"></select>
+      <span class="tag" id="currentWeekTag"></span>
+    </div>
+  </div>
+  <div class="co-grid" id="companyStatusGrid"></div>
+
+  <!-- GitHub 자동 커밋 설정 -->
+  <div class="section-title">GitHub 자동 커밋 설정 <span class="tag">한 번만 설정하면 저장 즉시 공유</span></div>
+  <div class="card card-pad" id="patSection">
+    <div id="patSetView" class="hidden">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:13px;">✅ GitHub 토큰이 등록되어 있습니다. 업로드 시 자동으로 GitHub에 커밋됩니다.</span>
+        <button class="btn outline sm" id="clearPatBtn">토큰 삭제</button>
+      </div>
+    </div>
+    <div id="patInputView">
+      <p style="font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 10px;">
+        GitHub Personal Access Token(PAT)을 등록하면 파일 업로드 시 <b>자동으로 GitHub에 커밋</b>되어 전체가 즉시 확인할 수 있습니다.<br>
+        토큰은 이 브라우저에만 저장되며 외부로 전송되지 않습니다.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input id="patInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="flex:1;min-width:200px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;">
+        <button class="btn sm" id="savePatBtn" style="flex:none;">토큰 저장</button>
+        <a href="#" class="btn outline sm" style="flex:none;text-decoration:none;">토큰 발급하기</a>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">데이터 반영이 안된 경우, <br>
+        ① <b>F12 > Application > Storage > Local storage > https://dggis.github.io</b> 마우스 우클릭 > <b>Clear</b><br>
+        ② <b>Ctrl + Shift + R</b> 누르면, 강력 새로고침(Hard Refresh)이 되고 <br>
+        ③ <b>Ctrl + Shift + Delete</b> 누른 후, [전체 기간(모든시간)] 선택 및 삭제 후 재접속하세요.</p>
+    </div>
+  </div>
+
+  <!-- 업로드 -->
+  <div class="section-title">파일 업로드</div>
+  <div class="upload-card" id="dropZone">
+    <svg class="upload-emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M12 4 7 9M12 4l5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+    <h2>업체별 주간 실적 파일을 업로드하세요</h2>
+    <p>파일명 형식: <b>[업체명]기초번호판설치점검_주간보고_YYYYMMDD.xlsx</b><br>날짜는 <b>매주 목요일</b> 날짜로 저장하세요.</p>
+    <button class="btn" id="pickBtn">엑셀 파일 선택</button>
+    <div class="upload-note">또는 이 영역으로 드래그&드롭</div>
+    <input type="file" id="fileInput" accept=".xlsx">
+  </div>
+
+  <!-- 미리보기 -->
+  <div id="previewCard" class="hidden">
+    <div class="section-title">업로드 미리보기</div>
+    <div class="card card-pad">
+      <div class="field-row">
+        <div class="field"><label>인식된 업체명</label><input id="prevCompany" disabled></div>
+        <div class="field"><label>기준일자 (목요일)</label><input id="prevDate" disabled></div>
+        <div class="field"><label>보고기간</label><input id="prevPeriod" disabled></div>
+      </div>
+      <div class="kpi-grid" id="prevKpis" style="margin-top:6px;"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn" id="saveBtn" style="flex:1;min-width:160px;">업로드</button>
+        <button class="btn outline" id="cancelBtn" style="flex:1;min-width:100px;">취소</button>
+      </div>
+      <div id="saveStatus" style="margin-top:10px;display:none;" class="note-box"></div>
+    </div>
+  </div>
+
+  <!-- 주차별 현황 + 롤백 -->
+  <div class="section-title">주차별 업로드 이력 <span class="tag">누적 저장 · 롤백 가능</span></div>
+  <div class="note-box" style="margin-bottom:10px;font-size:12px;color:var(--muted);">매주 업로드할 때마다 이력이 쌓입니다. <b>같은 날짜(주차)로 다시 업로드하면 자동으로 덮어씌워집니다.</b> 별도 삭제 불필요.</div>
+  <div class="card" id="weekHistoryCard">
+    <div class="empty">불러오는 중…</div>
+  </div>
+
+  
+  <!-- 템플릿 다운로드 -->
+  <div class="section-title">업체별 입력 템플릿 다운로드</div>
+  <div class="card card-pad">
+    <div id="templateLinks" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+  </div>
+
+  <!-- KAIS 파일 업로드 -->
+  <div class="section-title">KAIS 설치현황 파일 업로드 <span class="tag">정상/훼손/망실 자동 집계</span></div>
+  <div class="card card-pad">
+    <p style="font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 12px;">
+      KAIS 시스템에서 받은 「기초번호판_설치현황_YYYYMMDD.xlsx」 파일을 올리면<br>
+      시군구별 <b>정상/훼손/망실</b> 건수를 자동으로 집계해 해당 주차 데이터에 반영합니다.
+    </p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn outline" id="pickKaisBtn" style="flex:none;" disabled>KAIS 파일 선택</button>
+      <input type="file" id="kaisFileInput" accept=".xlsx" style="display:none;">
+      <span id="kaisStatus" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="kaisPreview" class="hidden" style="margin-top:12px;">
+      <div class="kpi-grid" id="kaisKpis"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <select id="kaisWeekSelect" style="flex:1;padding:9px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;"></select>
+        <button class="btn" id="applyKaisBtn" style="flex:none;">이 주차에 반영</button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">※ 적용할 주차를 선택 후 반영하세요. 기존 정상/훼손/망실 값이 교체됩니다.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="tabbar" id="tabbar"></div>
+
+<script src="assets/app.js"></script>
+<script>
+let CONFIG = null;
+let PENDING = null;
+
+// ---- 요일·날짜 헬퍼 ----
+function getWeekPeriod(thursdayStr) {
+  // 목요일 → 금주 금요일(전주) ~ 목요일
+  const thu = new Date(thursdayStr);
+  const fri = new Date(thu); fri.setDate(thu.getDate() - 6);
+  const fmt = d => d.toISOString().slice(0,10);
+  return { start: fmt(fri), end: fmt(thu) };
+}
+function parseFilename(name) {
+  // [업체명]기초번호판설치점검_주간보고_YYYYMMDD
+  const m = name.match(/^\[([^\]]+)\].*?_(\d{8})/);
+  if (!m) return null;
+  const company = m[1];
+  const d = m[2];
+  const dateStr = `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`;
+  return { company, dateStr };
+}
+function lastThursday() {
+  // 직전 목요일 (오늘이 목요일이면 오늘, 그 전이면 지난 목요일)
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun,1=Mon,...4=Thu,5=Fri,6=Sat
+  const diff = (day - 4 + 7) % 7; // 목요일로부터 며칠 지났나
+  const thu = new Date(now); thu.setDate(now.getDate() - diff);
+  return thu.toISOString().slice(0,10);
+}
+function thisThursday() { return lastThursday(); }
+
+// ---- config 로드 ----
+async function loadConfig() {
+  if (CONFIG) return CONFIG;
+  try {
+    const res = await fetch('data/config.json', {cache:'no-store'});
+    CONFIG = await res.json();
+  } catch(e) {
+    CONFIG = { companies: [] };
+  }
+  return CONFIG;
+}
+
+// ---- 업체 템플릿 파일명 ----
+function templateFilename(company) {
+  return `templates/[${company}]기초번호판설치점검_주간보고_템플릿.xlsx`;
+}
+
+// ---- 회사 상태 그리드 ----
+async function renderCompanyGrid(selectedDate) {
+  const cfg = await loadConfig();
+  // 주차 선택 드롭다운 구성
+  const sel = $('#statusWeekSelect');
+  const allWeeks = await DataLayer.listAllWeeks();
+  const defaultDate = selectedDate || lastThursday();
+  if (sel.options.length === 0 || selectedDate === undefined) {
+    // 저장된 주차 + 오늘 기준 직전 목요일
+    const dateSet = new Set(allWeeks.map(w=>w.date));
+    dateSet.add(defaultDate);
+    const sorted = [...dateSet].sort().reverse();
+    sel.innerHTML = sorted.map(d=>`<option value="${d}">${d}</option>`).join('');
+    sel.value = sorted[0];
+    sel.onchange = () => renderCompanyGrid(sel.value);
+  }
+  const currentWeek = sel.value || defaultDate;
+  $('#currentWeekTag').textContent = `기준`;
+  const master = LocalStore.getMasterWeek(currentWeek) || await DataLayer.getWeek(currentWeek);
+  const uploads = master?.companyUploads || {};
+  const companies = cfg.companies.length ? cfg.companies : [
+    {name:'대국지아이에스'},{name:'내가시스템'},{name:'더퍼스트아이씨티'},{name:'새한항업'},{name:'웨이즈원'},{name:'대한지리학회'}
+  ];
+  $('#companyStatusGrid').innerHTML = companies.map(c => {
+    const up = uploads[c.name];
+    const done = !!up;
+    const time = done ? new Date(up.uploadedAt).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="co-card ${done?'done':'missing'}">
+      <div class="co-name">${c.name}</div>
+      <div class="co-status ${done?'done':'missing'}">${done?'✅ 업로드 완료':'⏳ 미업로드'}</div>
+      ${done?`<div class="co-time">${time}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ---- 파일 처리 ----
+function handleFile(file) {
+  const parsed = parseFilename(file.name);
+  if (!parsed) {
+    alert(`파일명 형식이 맞지 않습니다.\n올바른 형식: [업체명]기초번호판설치점검_주간보고_YYYYMMDD.xlsx`);
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const snap = parseCompanyTemplate(e.target.result, parsed.company, parsed.dateStr, file.name);
+      if (!snap) { alert('파일을 읽을 수 없습니다. 업체 템플릿 양식인지 확인해주세요.'); return; }
+      PENDING = snap;
+      showPreview(snap);
+    } catch(err) {
+      console.error(err);
+      alert('파일 파싱 오류: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseCompanyTemplate(buf, company, dateStr, fileName) {
+  const wb = XLSX.read(buf, {type:'array', raw:true});
+
+  // 시트 1: 주간보고내용 (텍스트) — 키워드로 섹션 탐색
+  let reportText = { reporter:'', weeklyWork:'', plan:'', note:'' };
+  const ws1 = wb.Sheets['주간보고내용'];
+  if (ws1) {
+    const a = XLSX.utils.sheet_to_json(ws1, {header:1, defval:null, raw:false});
+    // 보고자: B3 (row2, col1)
+    reportText.reporter = ((a[2]||[])[1] || '').toString().trim();
+    // 섹션별: 제목 행 찾고 다음 행 값 읽기
+    function findNextCell(keyword) {
+      for (let r=0; r<a.length; r++) {
+        const rowStr = (a[r]||[]).map(c=>c==null?'':String(c)).join('');
+        if (rowStr.includes(keyword)) {
+          // 다음 행의 A열 값 반환
+          for (let nr=r+1; nr<=r+3; nr++) {
+            const val = ((a[nr]||[])[0] || '').toString().trim();
+            if (val && !val.startsWith('[입력]') && val.length > 2) return val;
+          }
+        }
+      }
+      return '';
+    }
+    reportText.weeklyWork = findNextCell('금주 실적');
+    reportText.plan       = findNextCell('추진계획');
+    reportText.note       = findNextCell('기타');
+  }
+
+  // 시트 2: 주간실적입력 (숫자) — 없으면 보고전용으로 처리 (예: 대한지리학회)
+  const ws2 = wb.Sheets['주간실적입력'];
+  const regions = [];
+  if (ws2) {
+    const aoa = XLSX.utils.sheet_to_json(ws2, {header:1, defval:null, raw:true});
+    const hdr = (aoa[3]||[]).map(c=>c==null?'':String(c).trim());
+    const idxSido   = hdr.indexOf('시도');
+    const idxSigungu= hdr.indexOf('시군구');
+    const idxTarget = hdr.indexOf('전체대상건수');
+    const idxThis   = hdr.indexOf('금주점검건수');
+    if (idxSido>=0 && idxSigungu>=0) {
+      for (let r=4; r<aoa.length; r++) {
+        const row = aoa[r]; if (!row) continue;
+        const sido    = row[idxSido];
+        const sigungu = row[idxSigungu];
+        if (!sido || !sigungu || String(sigungu).trim() === '') continue;
+        regions.push({
+          sido: String(sido).trim(),
+          sigungu: String(sigungu).trim(),
+          target: parseFloat(row[idxTarget])||0,
+          thisWeek: parseFloat(row[idxThis])||0,
+          normal:0, damage:0, lost:0,
+        });
+      }
+    }
+  }
+  // regions가 빈 배열이어도 정상 처리 (보고전용 업체)
+
+  const {start, end} = getWeekPeriod(dateStr);
+  return { company, dateStr, weekStart:start, weekEnd:end, fileName,
+           uploadedAt:new Date().toISOString(), reportText, regions };
+}
+
+function showPreview(snap) {
+  $('#previewCard').classList.remove('hidden');
+  $('#prevCompany').value = snap.company;
+  $('#prevDate').value = snap.dateStr;
+  $('#prevPeriod').value = `${snap.weekStart} ~ ${snap.weekEnd}`;
+  const totalTarget = snap.regions.reduce((a,r)=>a+r.target,0);
+  const totalThis = snap.regions.reduce((a,r)=>a+r.thisWeek,0);
+  const totalNormal = snap.regions.reduce((a,r)=>a+r.normal,0);
+  $('#prevKpis').innerHTML = [
+    kpiCard('담당 지자체', snap.regions.length+'개'),
+    kpiCard('전체 대상건수', totalTarget.toLocaleString()),
+    kpiCard('금주 점검건수', totalThis.toLocaleString()),
+    kpiCard('정상', totalNormal.toLocaleString()),
+  ].join('');
+  $('#saveStatus').style.display = 'none';
+}
+
+// ---- 마스터에 병합 ----
+async function mergeAndSave(snap) {
+  const cfg = await loadConfig();
+  const date = snap.dateStr;
+
+  // 1. 로컬 → 없으면 GitHub에서 읽기 (다른 업체가 이미 올린 데이터 보존)
+  let master = LocalStore.getMasterWeek(date);
+  if (!master && GitHubCommit.hasPAT()) {
+    try {
+      // 새 형식: 업체별 파일 병렬 로드
+      const slugMap = _GH.SLUGS;
+      const entries = Object.entries(slugMap);
+      const files = await Promise.all(
+        entries.map(([name, slug]) =>
+          _GH.getFile(`data/weekly/${slug}/${date}.json`)
+            .then(f => f?.content || null).catch(() => null)
+        )
+      );
+      const found = files.filter(Boolean);
+      if (found.length > 0 && typeof mergeCompanyFiles === 'function') {
+        master = mergeCompanyFiles(date, found);
+        console.log(`GitHub 새형식: ${found.length}개 업체 데이터 병합 완료`);
+      } else if (found.length > 0) {
+        // mergeCompanyFiles 없을 경우 직접 병합
+        master = {
+          baseDate: date, weekStart: found[0].weekStart||'', weekEnd: date,
+          uploadedAt: new Date().toISOString(), companyUploads: {}, regions: [], rollbackHistory: {}
+        };
+        const regionMap = {};
+        found.forEach(cf => {
+          master.companyUploads[cf.company] = { uploadedAt:cf.uploadedAt, reportText:cf.reportText||{}, regions:cf.regions };
+          (cf.regions||[]).forEach(r => { regionMap[r.sido+'|'+r.sigungu] = {...r, vendor:cf.company}; });
+        });
+        master.regions = Object.values(regionMap);
+      }
+    } catch(e) { console.warn('GitHub 로드 실패:', e); }
+    // 구형식 fallback: data/weekly/{date}.json
+    if (!master) {
+      try {
+        const ghFile = await GitHubCommit.getFile(`data/weekly/${date}.json`);
+        if (ghFile?.content) { master = ghFile.content; console.log('구형식 fallback 사용'); }
+      } catch(e) {}
+    }
+  }
+
+  if (!master) {
+    // 이전 주차 누적값 조회 (prevWeek 설정용)
+    const allLocalWeeks = LocalStore.listWeeks().filter(d => d < date).sort();
+    const prevDate = allLocalWeeks.length > 0 ? allLocalWeeks[allLocalWeeks.length - 1] : null;
+    const prevMaster = prevDate ? LocalStore.getMasterWeek(prevDate) : null;
+    const prevMap = {};
+    if (prevMaster?.regions) {
+      prevMaster.regions.forEach(r => { prevMap[`${r.sido}|${r.sigungu}`] = r; });
+    }
+
+    // 완전 새 마스터 초기화
+    master = {
+      baseDate: date, weekStart: snap.weekStart, weekEnd: snap.weekEnd,
+      uploadedAt: new Date().toISOString(), companyUploads: {}, regions: [],
+      rollbackHistory: {}
+    };
+    cfg.companies.forEach(c => c.regions.forEach(r => {
+      const prev = prevMap[`${r.sido}|${r.sigungu}`];
+      master.regions.push({
+        sido:r.sido, sigungu:r.sigungu, vendor:c.name,
+        target:r.target, thisWeek:0,
+        prevWeek: prev ? (prev.cumulative || 0) : 0,  // 이전 주 누적 → prevWeek
+        cumulative:0, progress:0, remain:r.target, normal:0, damage:0, lost:0, note:''
+      });
+    }));
+  }
+  // 롤백용 이전 데이터 저장
+  if (master.companyUploads[snap.company]) {
+    if (!master.rollbackHistory) master.rollbackHistory = {};
+    if (!master.rollbackHistory[snap.company]) master.rollbackHistory[snap.company] = [];
+    master.rollbackHistory[snap.company].push({
+      uploadedAt: master.companyUploads[snap.company].uploadedAt,
+      regions: master.companyUploads[snap.company].regions,
+    });
+    // 최대 3개 보관
+    if (master.rollbackHistory[snap.company].length > 3)
+      master.rollbackHistory[snap.company].shift();
+  }
+  // 이번 업체 데이터 갱신
+  master.companyUploads[snap.company] = { uploadedAt: snap.uploadedAt, regions: snap.regions, reportText: snap.reportText || {} };
+  // regions 배열 갱신
+  snap.regions.forEach(nr => {
+    const idx = master.regions.findIndex(r => r.sido===nr.sido && r.sigungu===nr.sigungu);
+    if (idx>=0) {
+      const pr = master.regions[idx];
+      pr.thisWeek = nr.thisWeek;
+      pr.normal = nr.normal; pr.damage = nr.damage; pr.lost = nr.lost;
+      // 누적: prevWeek + thisWeek (prevWeek는 이전 주차에서 불러옴)
+      pr.cumulative = pr.prevWeek + nr.thisWeek;
+      pr.remain = pr.target - pr.cumulative;
+      pr.progress = pr.target ? pr.cumulative/pr.target : 0;
+    }
+  });
+  master.uploadedAt = new Date().toISOString();
+  LocalStore.saveMasterWeek(date, master);
+  return master;
+}
+
+// ---- 롤백 ----
+function rollback(date, company, histIdx) {
+  const master = LocalStore.getMasterWeek(date);
+  if (!master?.rollbackHistory?.[company]?.[histIdx]) return;
+  const old = master.rollbackHistory[company][histIdx];
+  // 현재 데이터를 history에 추가
+  if (!master.rollbackHistory[company]) master.rollbackHistory[company] = [];
+  master.rollbackHistory[company].push({ uploadedAt: master.companyUploads[company]?.uploadedAt, regions: master.companyUploads[company]?.regions });
+  // 복원
+  master.companyUploads[company] = { uploadedAt: old.uploadedAt, regions: old.regions };
+  old.regions.forEach(nr => {
+    const idx = master.regions.findIndex(r=>r.sido===nr.sido && r.sigungu===nr.sigungu);
+    if (idx>=0) {
+      const pr = master.regions[idx];
+      pr.thisWeek = nr.thisWeek; pr.normal = nr.normal; pr.damage = nr.damage; pr.lost = nr.lost;
+      pr.cumulative = pr.prevWeek + nr.thisWeek;
+      pr.remain = pr.target - pr.cumulative;
+      pr.progress = pr.target ? pr.cumulative/pr.target : 0;
+    }
+  });
+  master.rollbackHistory[company].splice(histIdx, 1);
+  LocalStore.saveMasterWeek(date, master);
+  renderWeekHistory(); renderCompanyGrid();
+  alert(`${company} - ${old.uploadedAt.slice(0,16)} 버전으로 롤백했습니다.`);
+}
+
+// ---- 주차 이력 테이블 ----
+async function renderWeekHistory() {
+  const cfg = await loadConfig();
+  const weeks = LocalStore.listWeeks().reverse();
+  if (!weeks.length) { $('#weekHistoryCard').innerHTML = `<div class="empty">저장된 주차가 없습니다</div>`; return; }
+  let html = '<div style="padding:12px 14px;">';
+  for (const date of weeks) {
+    const master = LocalStore.getMasterWeek(date);
+    if (!master) continue;
+    const t = master.regions.reduce((a,r)=>({target:a.target+r.target, cumulative:a.cumulative+r.cumulative, thisWeek:a.thisWeek+r.thisWeek}), {target:0,cumulative:0,thisWeek:0});
+    html += `<div class="rollback-row">
+      <div>
+        <span class="period-tag">${master.weekStart} ~ ${master.weekEnd}</span>
+        <span style="font-size:12px;font-weight:800;color:var(--navy);margin-left:8px;">${date}</span>
+        <span style="font-size:11px;color:var(--muted);margin-left:6px;">누적 ${t.cumulative.toLocaleString()}건 / 금주 ${t.thisWeek.toLocaleString()}건</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">`;
+    // 업체별 업로드 여부 뱃지
+    cfg.companies.forEach(c => {
+      const done = !!master.companyUploads?.[c.name];
+      html += `<span class="badge ${done?'ok':'muted'}" style="font-size:9px;">${c.name.slice(0,4)}</span>`;
+    });
+    html += `</div></div>`;
+    // 롤백 이력
+    cfg.companies.forEach(c => {
+      const hist = master.rollbackHistory?.[c.name] || [];
+      hist.forEach((h, i) => {
+        html += `<div style="padding:4px 0 4px 20px;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;">
+          <span>↩ ${c.name} 이전버전: ${(h.uploadedAt||'').slice(0,16)}</span>
+          <button class="btn ghost" onclick="rollback('${date}','${c.name}',${i})" style="font-size:11px;padding:4px 8px;">복원</button>
+        </div>`;
+      });
+    });
+  }
+  html += '</div>';
+  $('#weekHistoryCard').innerHTML = html;
+}
+
+// ---- PAT 설정 UI ----
+function renderPatUI() {
+  const has = GitHubCommit.hasPAT();
+  $('#patSetView').classList.toggle('hidden', !has);
+  $('#patInputView').classList.toggle('hidden', has);
+}
+$('#savePatBtn').addEventListener('click', ()=>{
+  const val = $('#patInput').value.trim();
+  if (!val.startsWith('ghp_') && !val.startsWith('github_pat_')) {
+    alert('올바른 GitHub PAT 형식이 아닙니다. ghp_ 또는 github_pat_ 으로 시작해야 합니다.');
+    return;
+  }
+  GitHubCommit.setPAT(val);
+  $('#patInput').value = '';
+  renderPatUI();
+  alert('✅ GitHub 토큰이 저장되었습니다. 이제 업로드 시 자동으로 커밋됩니다.');
+});
+$('#clearPatBtn').addEventListener('click', ()=>{
+  if (confirm('GitHub 토큰을 삭제할까요?')) { GitHubCommit.clearPAT(); renderPatUI(); }
+});
+
+// ---- 저장 버튼 (PAT 있으면 자동 커밋) ----
+$('#pickBtn').addEventListener('click', ()=>$('#fileInput').click());
+$('#fileInput').addEventListener('change', e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+const dz = $('#dropZone');
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+// ---- 이벤트 바인딩 ----
+$('#saveBtn').addEventListener('click', async ()=>{
+  if (!PENDING) return;
+  $('#saveBtn').disabled = true;
+  const statusEl = $('#saveStatus');
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '⏳ 저장 중…';
+  try {
+    const snap = PENDING;                         // snap 먼저 저장
+    const master = await mergeAndSave(snap);
+    const date = snap.dateStr;
+    PENDING = null;
+
+    if (GitHubCommit.hasPAT()) {
+      statusEl.innerHTML = '⏳ GitHub에 자동 커밋 중…';
+      try {
+        await GitHubCommit.commitWeek(date, snap); // snap 전달 (company 정보 포함)
+        statusEl.innerHTML = `✅ <b>${date}</b> 주차가 GitHub에 저장되었습니다. 새로고침하면 바로 확인 가능합니다.`;
+      } catch(gitErr) {
+        statusEl.innerHTML = `💾 저장됨. GitHub 커밋 실패: ${gitErr.message}<br><span style="font-size:11px;">토큰 권한(repo)을 확인하거나 JSON 내보내기로 수동 커밋하세요.</span>`;
+      }
+    } else {
+      statusEl.innerHTML = `💾 저장되었습니다. <b>GitHub 자동 커밋 설정</b>을 하면 즉시 공유할 수 있습니다.`;
+    }
+    await renderCompanyGrid();
+    await renderWeekHistory();
+    $('#previewCard').classList.add('hidden');
+  } catch(e) {
+    statusEl.innerHTML = `❌ 저장 실패: ${e.message}`;
+  } finally {
+    $('#saveBtn').disabled = false;
+  }
+});
+$('#cancelBtn').addEventListener('click', ()=>{ PENDING=null; $('#previewCard').classList.add('hidden'); });
+
+// ---- KAIS 파일 파싱 ----
+let KAIS_DATA = null;
+
+function parseKaisFile(buf) {
+  const wb = XLSX.read(buf, {type:'array', raw:true});
+  const wsName = wb.SheetNames.find(n=>n.includes('설치현황')) || wb.SheetNames[0];
+  const ws = wb.Sheets[wsName];
+  const aoa = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+
+  // 헤더 탐색 (행정구역, 점검진행상태 포함 행 찾기)
+  let hdrIdx = -1;
+  for (let i=0;i<aoa.length;i++) {
+    const row = (aoa[i]||[]).map(c=>c==null?'':String(c));
+    if (row.includes('행정구역') && row.some(c=>c.includes('점검'))) { hdrIdx=i; break; }
+  }
+  if (hdrIdx<0) return null;
+
+  // 2행 헤더 합치기 (row hdrIdx + hdrIdx+1)
+  const h1 = (aoa[hdrIdx]||[]).map(c=>c==null?'':String(c).trim());
+  const h2 = (aoa[hdrIdx+1]||[]).map(c=>c==null?'':String(c).trim());
+
+  const colArea   = h1.indexOf('행정구역');
+  // 점검진행상태 찾기
+  let colStatus = -1;
+  for (let i=0;i<h2.length;i++) { if (h2[i].includes('점검진행상태')||h1[i].includes('점검진행상태')) {colStatus=i;break;} }
+  if (colArea<0) return null;
+
+  // 시군구별 집계
+  const map = {};
+  for (let r=hdrIdx+2; r<aoa.length; r++) {
+    const row = aoa[r]; if (!row||!row[colArea]) continue;
+    const sigungu = String(row[colArea]).trim();
+    if (!map[sigungu]) map[sigungu] = {total:0, done:0, normal:0, damage:0, lost:0};
+    map[sigungu].total++;
+    const status = colStatus>=0 ? String(row[colStatus]||'') : '';
+    if (status.includes('점검')) map[sigungu].done++;
+    if (status.includes('정상')) map[sigungu].normal++;
+    else if (status.includes('훼손')) map[sigungu].damage++;
+    else if (status.includes('망실')) map[sigungu].lost++;
+  }
+  return map;
+}
+
+function handleKaisFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = parseKaisFile(e.target.result);
+      if (!data || !Object.keys(data).length) {
+        $('#kaisStatus').textContent = '❌ 파일을 읽을 수 없습니다. KAIS 설치현황 파일인지 확인하세요.';
+        return;
+      }
+      KAIS_DATA = data;
+      const regions = Object.keys(data).length;
+      const total = Object.values(data).reduce((a,v)=>a+v.total,0);
+      const done  = Object.values(data).reduce((a,v)=>a+v.done,0);
+      $('#kaisStatus').textContent = `✅ ${file.name} (${regions}개 지역, ${total.toLocaleString()}건)`;
+      $('#kaisKpis').innerHTML = [
+        kpiCard('집계 지역수', regions+'개'),
+        kpiCard('전체 건수', total.toLocaleString()),
+        kpiCard('점검완료', done.toLocaleString(), 'ok'),
+        kpiCard('점검율', total?((done/total)*100).toFixed(1)+'%':'0%'),
+      ].join('');
+      // 주차 선택 드롭다운 채우기
+      const weeks = LocalStore.listWeeks();
+      const sel = $('#kaisWeekSelect');
+      if (weeks.length) {
+        sel.innerHTML = weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
+        sel.value = weeks[weeks.length-1];
+      } else {
+        sel.innerHTML = `<option value="">저장된 주차 없음</option>`;
+      }
+      $('#kaisPreview').classList.remove('hidden');
+    } catch(err) {
+      console.error(err);
+      $('#kaisStatus').textContent = '❌ 파싱 오류: '+err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+$('#pickKaisBtn').addEventListener('click', ()=>$('#kaisFileInput').click());
+$('#kaisFileInput').addEventListener('change', e=>{ if(e.target.files[0]) handleKaisFile(e.target.files[0]); });
+
+$('#applyKaisBtn').addEventListener('click', ()=>{
+  if (!KAIS_DATA) return;
+  const date = $('#kaisWeekSelect').value;
+  if (!date) { alert('적용할 주차를 선택하세요.'); return; }
+  const master = LocalStore.getMasterWeek(date);
+  if (!master) { alert('해당 주차 데이터가 없습니다. 먼저 주간실적 파일을 업로드하세요.'); return; }
+  let updated = 0;
+  master.regions.forEach(r => {
+    const kd = KAIS_DATA[r.sigungu];
+    if (kd) {
+      r.normal = kd.normal; r.damage = kd.damage; r.lost = kd.lost;
+      updated++;
+    }
+  });
+  master.uploadedAt = new Date().toISOString();
+  LocalStore.saveMasterWeek(date, master);
+  $('#kaisPreview').classList.add('hidden');
+  $('#kaisStatus').textContent = `✅ ${date} 주차에 정상/훼손/망실 반영 완료 (${updated}개 지역 갱신)`;
+  KAIS_DATA = null;
+  renderWeekHistory();
+  alert(`${updated}개 지역의 정상/훼손/망실 데이터가 반영되었습니다.`);
+});
+
+// ---- 템플릿 다운로드 링크 (하드코딩으로 보장) ----
+async function renderTemplateLinks() {
+  const companies = ['대국지아이에스','내가시스템','더퍼스트아이씨티','새한항업','웨이즈원','대한지리학회'];
+  const el = $('#templateLinks');
+  if (!el) return;
+  el.innerHTML = companies.map(c =>
+    `<a href="templates/[${encodeURIComponent(c)}]기초번호판설치점검_주간보고_템플릿.xlsx"
+        download="[${c}]기초번호판설치점검_주간보고_템플릿.xlsx"
+        class="btn outline sm" style="min-width:130px;text-decoration:none;">${c}</a>`
+  ).join('');
+}
+
+
+// ---- GitHub 커밋 헬퍼 (upload.html 자체 내장, app.js 독립) ----
+const _GH = {
+  owner: 'dggis',
+  repo:  'addr.chk.2026',
+  branch: 'main',
+  pat() { return localStorage.getItem('kaba_gh_pat') || ''; },
+  headers() {
+    return {
+      Authorization: 'Bearer ' + this.pat(),
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    };
+  },
+  base() { return `https://api.github.com/repos/${this.owner}/${this.repo}/contents`; },
+
+  async getFile(path) {
+    const res = await fetch(`${this.base()}/${path}?ref=${this.branch}`, { headers: this.headers() });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const content = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    return { content, sha: data.sha };
+  },
+
+  async putFile(path, jsonObj, msg) {
+    // SHA 조회
+    const existing = await this.getFile(path).catch(()=>null);
+    const body = {
+      message: msg,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(jsonObj, null, 2)))),
+      branch: this.branch
+    };
+    if (existing?.sha) body.sha = existing.sha;
+    const res = await fetch(`${this.base()}/${path}`, {
+      method: 'PUT', headers: this.headers(), body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.message || `GitHub 오류 (${res.status})`);
+    }
+    return true;
+  },
+
+  // 업체별 슬러그 매핑 (upload.html 자체 내장)
+  SLUGS: {
+    '내가시스템':'nega', '대국지아이에스':'dggis',
+    '더퍼스트아이씨티':'thefirst', '새한항업':'saehan', '웨이즈원':'ways1', '대한지리학회':'dkgs'
+  },
+
+  async commitWeek(date, snap) {
+    // snap = { company, dateStr, weekStart, weekEnd, reportText, regions, uploadedAt }
+    const slug = this.SLUGS[snap.company] || snap.company;
+    const companyData = {
+      company: snap.company, slug,
+      baseDate: date,
+      weekStart: snap.weekStart, weekEnd: snap.weekEnd,
+      uploadedAt: snap.uploadedAt || new Date().toISOString(),
+      reportText: snap.reportText || {},
+      regions: snap.regions
+    };
+    // 자기 파일만 씀 → 충돌 없음
+    await this.putFile(
+      `data/weekly/${slug}/${date}.json`,
+      companyData,
+      `chore: ${snap.company} ${date} 주차 데이터`
+    );
+
+    // index.json — 날짜 목록만 갱신. SHA 충돌·네트워크 순간 오류 등으로
+    // 이 두 번째 쓰기만 실패하면 업체 데이터는 이미 저장된 채로 index.json만
+    // 누락되는 불일치가 생기므로, 최대 3회까지 SHA를 새로 읽어 재시도한다.
+    const localWeeks = typeof LocalStore !== 'undefined' ? LocalStore.listWeeks() : [];
+    let merged = null, lastErr = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        let ghWeeks = [];
+        try {
+          const idx = await this.getFile('data/index.json');
+          if (idx?.content?.weeks) ghWeeks = idx.content.weeks;
+        } catch(e) {}
+        merged = [...new Set([...ghWeeks, ...localWeeks, date])].sort();
+        await this.putFile('data/index.json', { weeks: merged }, `chore: index.json 갱신 (${date} 추가)`);
+        lastErr = null;
+        break;
+      } catch(e) {
+        lastErr = e;
+        await new Promise(res => setTimeout(res, 400 * (attempt + 1))); // 잠깐 대기 후 재시도
+      }
+    }
+    if (lastErr) {
+      // 업체 데이터 파일은 이미 정상 저장됐음을 명확히 구분해서 알림
+      // (index.json은 다음 업로드 시 자동으로 따라잡히지만, 즉시 인지할 수 있도록 에러를 위로 던짐)
+      throw new Error(`업체 데이터(${snap.company})는 저장되었으나 index.json 갱신에 실패했습니다: ${lastErr.message}`);
+    }
+    return merged;
+  }
+};
+
+// GitHubCommit을 _GH로 오버라이드 (app.js의 구버전 덮어쓰기)
+if (typeof GitHubCommit !== 'undefined') {
+  GitHubCommit.getFile    = (p)    => _GH.getFile(p);
+  GitHubCommit.putFile    = (p,o,m)=> _GH.putFile(p,o,m);
+  GitHubCommit.commitWeek = (d,s)  => _GH.commitWeek(d,s);  // s=snap
+}
+
+// ---- 초기화 ----
+(async function init(){
+  renderNav('upload');
+  renderPatUI();
+  await loadConfig();
+  await renderCompanyGrid();
+  await renderWeekHistory();
+  renderTemplateLinks();
+})();
+</script>
+</body>
+</html>

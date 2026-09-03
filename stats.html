@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>통계 · 기초번호판 보고 시스템</title>
+<link rel="icon" href="data:,">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.filter-row label{font-size:11px;font-weight:700;color:var(--muted);flex:none;}
+.filter-row select{flex:1;min-width:110px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;}
+.upload-mini{background:#fff;border:1.4px dashed #C7D6E6;border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:12px;}
+.upload-mini p{font-size:12px;color:var(--muted);margin:0 0 8px;line-height:1.6;}
+.schip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+.s-정상{background:#E6F4EC;color:#1E8E5A;}
+.s-훼손,.s-비정상{background:#FDF1E6;color:#B7791F;}
+.s-망실{background:#FBEAEA;color:#C0392B;}
+.s-시인성,.s-설치위치,.s-표기내용,.s-기타,.s-설치높이{background:#EEF1F5;color:#6B7686;}
+.s-QR코드{background:#EAF2FA;color:#2E74B5;}
+table.kdt{border-collapse:collapse;width:100%;font-size:11.5px;white-space:nowrap;}
+table.kdt th{background:var(--lblue);color:var(--navy);font-weight:800;text-align:center;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;}
+table.kdt td{padding:7px 9px;border-bottom:1px solid #F0F2F5;color:var(--text);}
+table.kdt tr:nth-child(even) td{background:#FAFBFD;}
+table.kdt td.c{text-align:center;}
+.table-info{font-size:11px;color:var(--muted);padding:6px 0 4px;display:flex;justify-content:space-between;}
+.nodata{text-align:center;padding:24px;color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="appbar">
+  <div class="titles"><h1>통계</h1><div class="sub" id="appSub">불러오는 중…</div></div>
+  <div class="weeksel"><select id="weekSelect"></select></div>
+</div>
+<div class="content">
+  <div id="emptyState" class="hidden">
+    <div class="card card-pad" style="text-align:center;">
+      <div class="nodata">업로드된 데이터가 없습니다.</div>
+      <a class="btn" href="upload.html" style="margin-top:6px;">업로드 페이지로 이동</a>
+    </div>
+  </div>
+  <div id="dataState" class="hidden">
+    <div class="subtabs">
+      <button data-mode="kais" class="active">KAIS 점검결과</button>
+      <!--button data-mode="qfield">QField 점검결과</button-->
+      <button data-mode="vendor">업체별현황</button>
+      <button data-mode="search">조회·검색</button>
+    </div>
+
+    <!-- KAIS 점검결과 -->
+    <section id="mode-kais">
+      <div class="upload-mini">
+        <p>「기초번호판_설치현황_YYYYMMDD.xlsx」 파일을 올리면 점검결과를 상세 조회할 수 있습니다.<br>
+        점검상태코드명(BG열): <b>정상 / 훼손 / 망실 / 시인성 / 설치위치 / 표기내용 / 기타</b></p>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn sm" id="pickKaisBtn">KAIS 파일 선택</button>
+          <input type="file" id="kaisInput" accept=".xlsx" style="display:none;">
+          <button class="btn outline sm hidden" id="clearKaisBtn">초기화</button>
+        </div>
+        <div id="kaisInfo" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+      </div>
+      <div class="filter-row">
+        <label>점검상태</label>
+        <select id="kF_status"><option value="">전체</option><option>정상</option><option>훼손</option><option>망실</option><option>시인성</option><option>설치위치</option><option>표기내용</option><option>기타</option></select>
+        <label>시군구</label>
+        <select id="kF_sigungu"><option value="">전체</option></select>
+        <div class="searchbox" style="flex:2;min-width:150px;margin-bottom:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="kF_q" placeholder="도로명 / 관리번호 검색">
+        </div>
+      </div>
+      <div class="table-info"><span id="kais_cnt">0건</span><span>H=도로시설물관리번호 · V=도로명 · X=본번 · Y=부번 · BG=점검상태 · BH=점검일자</span></div>
+      <div class="card"><div class="table-wrap"><table class="kdt">
+        <thead><tr><th>시군구</th><th>도로시설물관리번호</th><th>도로명</th><th>본번</th><th>부번</th><th>점검상태</th><th>점검일자</th></tr></thead>
+        <tbody id="kaisTbody"><tr><td colspan="7" class="nodata">KAIS 파일을 업로드하세요</td></tr></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- QField 점검결과 -->
+    <section id="mode-qfield" class="hidden">
+      <div class="upload-mini">
+        <p>QField 현장조사 결과 파일(GPKG 또는 DBF)을 올리면 점검결과를 조회할 수 있습니다.<br>
+        추가 점검항목: <b>설치높이 / QR코드</b> — KAIS에 없는 QField 전용 항목</p>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn sm" id="pickGpkgBtn">GPKG 파일 선택</button>
+          <input type="file" id="gpkgInput" accept=".gpkg,.db,.sqlite" style="display:none;">
+          <button class="btn outline sm" id="pickDbfBtn">DBF 파일 선택</button>
+          <input type="file" id="dbfInput" accept=".dbf" style="display:none;">
+          <button class="btn outline sm hidden" id="clearQfBtn">초기화</button>
+        </div>
+        <div id="qfInfo" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+      </div>
+      <div class="filter-row">
+        <label>상태</label>
+        <select id="qF_status"><option value="">전체</option><option>정상</option><option>비정상</option></select>
+        <label>비정상사유</label>
+        <select id="qF_reason"><option value="">전체</option><option>설치위치</option><option>시인성</option><option>표기내용</option><option>설치높이</option><option>QR코드</option><option>기타</option></select>
+        <div class="searchbox" style="flex:2;min-width:140px;margin-bottom:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="qF_q" placeholder="도로명 / 관리번호 / 조사자 검색">
+        </div>
+      </div>
+      <div class="table-info"><span id="qf_cnt">0건</span><span>QField 현장조사 데이터</span></div>
+      <div class="card"><div class="table-wrap"><table class="kdt">
+        <thead><tr><th>시군구</th><th>도로시설물관리번호</th><th>KAIS도로명</th><th>본번</th><th>부번</th><th>조사도로명</th><th>조사본번</th><th>상태</th><th>비정상사유</th><th>조사자</th><th>조사일시</th><th>세부항목</th></tr></thead>
+        <tbody id="qfTbody"><tr><td colspan="12" class="nodata">GPKG 또는 DBF 파일을 업로드하세요</td></tr></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- 업체별현황 -->
+    <section id="mode-vendor" class="hidden">
+      <div class="section-title">담당업체별 자동집계 <span class="tag">시군구별_진도현황 기준</span></div>
+      <div class="card"><div class="table-wrap" id="vendorAutoTable"></div></div>
+    </section>
+
+    <!-- 조회·검색 -->
+    <section id="mode-search" class="hidden">
+      <div class="searchbox">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" placeholder="시군구명 또는 담당업체로 검색">
+      </div>
+      <div class="chiprow" id="sidoChips"></div>
+      <div class="sortbar">
+        <button data-sort="default" class="active">기본순</button>
+        <button data-sort="progressAsc">진도율 낮은순</button>
+        <button data-sort="remainDesc">잔여건수 많은순</button>
+        <button data-sort="completed">완료순</button>
+      </div>
+      <div class="region-list" id="searchList"></div>
+    </section>
+  </div>
+</div>
+<div class="tabbar" id="tabbar"></div>
+<script src="assets/app.js"></script>
+<script>
+renderNav('stats');
+let SNAP=null, filter={sido:'전체',search:'',sort:'default'};
+let KAIS_ROWS=[], QF_ROWS=[], _SQL=null;
+
+/* ---- KAIS xlsx 파싱 ---- */
+function parseKaisXlsx(buf){
+  const wb=XLSX.read(buf,{type:'array',raw:false});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:false});
+  let hIdx=-1;
+  for(let i=0;i<Math.min(aoa.length,6);i++){
+    if((aoa[i]||[]).map(c=>String(c||'')).includes('행정구역')){hIdx=i;break;}
+  }
+  if(hIdx<0)return null;
+  const C={area:1,frf:7,rn:21,bnmn:23,bnsn:24,status:58,date:59};
+  return aoa.slice(hIdx+1).filter(r=>r&&r[C.area]&&String(r[C.area]).trim()!=='행정구역').map(r=>({
+    sigungu:String(r[C.area]||'').trim(),
+    frf:    String(r[C.frf]||'').trim(),
+    rn:     String(r[C.rn]||'').trim(),
+    bnmn:   String(r[C.bnmn]||'').trim(),
+    bnsn:   String(r[C.bnsn]||'').trim(),
+    status: String(r[C.status]||'').trim(),
+    date:   String(r[C.date]||'').trim(),
+  })).filter(r=>r.sigungu);
+}
+
+/* ---- sql.js 로드 ---- */
+async function loadSqlJs(){
+  if(_SQL)return _SQL;
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js';
+    s.onload=async()=>{
+      try{_SQL=await initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f});res(_SQL);}catch(e){rej(e);}
+    };
+    s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+
+/* ---- GPKG 파싱 ---- */
+async function parseGpkg(buf){
+  const SQL=await loadSqlJs();
+  const db=new SQL.Database(new Uint8Array(buf));
+  let tbl=null;
+  try{const r=db.exec("SELECT table_name FROM gpkg_contents WHERE data_type='features'");tbl=r[0]?.values[0]?.[0];}catch{}
+  if(!tbl){const r=db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'gpkg_%' AND name NOT LIKE 'log_%' AND name NOT LIKE 'sqlite_%'");tbl=r[0]?.values[0]?.[0];}
+  if(!tbl){db.close();return null;}
+  const res=db.exec('SELECT * FROM "'+tbl+'"');
+  db.close();
+  if(!res.length)return null;
+  const cols=res[0].columns;
+  return res[0].values.map(row=>{const o={};cols.forEach((c,i)=>o[c]=row[i]);return o;});
+}
+
+/* ---- DBF 바이너리 파싱 ---- */
+function parseDbf(buf){
+  const view=new DataView(buf);
+  const numRec=view.getUint32(4,true);
+  const hdrSize=view.getUint16(8,true);
+  const recSize=view.getUint16(10,true);
+  const fields=[];let off=32;
+  while(off<hdrSize-1){
+    const name=new TextDecoder('utf-8').decode(new Uint8Array(buf,off,11)).replace(/\x00/g,'').trim();
+    if(!name)break;
+    const len=view.getUint8(off+16);
+    fields.push({name,len});off+=32;
+  }
+  const dec=new TextDecoder('cp949');
+  const rows=[];let rOff=hdrSize;
+  for(let i=0;i<numRec;i++){
+    if(view.getUint8(rOff)===0x2A){rOff+=recSize;continue;}
+    rOff++;
+    const row={};
+    for(const f of fields){row[f.name]=dec.decode(new Uint8Array(buf,rOff,f.len)).trim();rOff+=f.len;}
+    rows.push(row);
+  }
+  return rows;
+}
+
+function toQfRow(r){
+  return{
+    sigungu: r['STDG_KOR']||'',
+    frf:     r['RDFC_MGNO']||'',
+    rn:      r['RN']||'',
+    bnmn:    r['ISPT_BNMN']||'',
+    bnsn:    r['ISPT_BNSN']||'',
+    조사rn:  r['조사_RN']||'',
+    조사bnmn:r['조사_BNMN']||'',
+    상태:    r['상태']||'',
+    사유:    r['비정상사유']||'',
+    조사자:  r['조사자']||'',
+    조사일:  (r['조사일시']||r['조사_일시']||'').toString().slice(0,16).replace('T',' '),
+    세부:    r['세부항목']||'',
+  };
+}
+
+/* ---- 테이블 렌더 ---- */
+function schip(v){return`<span class="schip s-${v}">${v||'-'}</span>`;}
+
+function renderKais(){
+  const sf=$('#kF_status').value, sg=$('#kF_sigungu').value, q=($('#kF_q').value||'').trim().toLowerCase();
+  const MAX=500;
+  let list=KAIS_ROWS.filter(r=>{
+    if(sf&&r.status!==sf)return false;
+    if(sg&&r.sigungu!==sg)return false;
+    if(q&&!r.rn.toLowerCase().includes(q)&&!r.frf.toLowerCase().includes(q)&&!r.sigungu.includes(q))return false;
+    return true;
+  });
+  $('#kais_cnt').textContent=list.length.toLocaleString()+'건';
+  const html=list.slice(0,MAX).map(r=>`<tr>
+    <td>${r.sigungu}</td><td class="c" style="font-size:10px">${r.frf}</td>
+    <td>${r.rn}</td><td class="c">${r.bnmn}</td><td class="c">${r.bnsn}</td>
+    <td class="c">${schip(r.status)}</td><td class="c">${r.date}</td>
+  </tr>`).join('');
+  $('#kaisTbody').innerHTML=html||(list.length?'':`<tr><td colspan="7" class="nodata">결과 없음</td></tr>`);
+  if(list.length>MAX)$('#kaisTbody').innerHTML+=`<tr><td colspan="7" class="nodata" style="color:var(--blue)">상위 ${MAX}건 표시 (전체 ${list.length.toLocaleString()}건)</td></tr>`;
+}
+
+function renderQf(){
+  const sf=$('#qF_status').value, sr=$('#qF_reason').value, q=($('#qF_q').value||'').trim().toLowerCase();
+  const MAX=500;
+  let list=QF_ROWS.filter(r=>{
+    if(sf&&r.상태!==sf)return false;
+    if(sr&&!r.사유.includes(sr)&&!r.세부.includes(sr))return false;
+    if(q&&!r.rn.toLowerCase().includes(q)&&!r.frf.toLowerCase().includes(q)&&!r.조사자.includes(q)&&!r.sigungu.includes(q))return false;
+    return true;
+  });
+  $('#qf_cnt').textContent=list.length.toLocaleString()+'건';
+  const html=list.slice(0,MAX).map(r=>`<tr>
+    <td>${r.sigungu}</td><td class="c" style="font-size:10px">${r.frf}</td>
+    <td>${r.rn}</td><td class="c">${r.bnmn}</td><td class="c">${r.bnsn}</td>
+    <td>${r.조사rn||'-'}</td><td class="c">${r.조사bnmn||'-'}</td>
+    <td class="c">${schip(r.상태)}</td><td class="c">${schip(r.사유)}</td>
+    <td>${r.조사자}</td><td class="c" style="font-size:10px">${r.조사일}</td>
+    <td style="white-space:normal;font-size:10.5px;max-width:180px">${r.세부||'-'}</td>
+  </tr>`).join('');
+  $('#qfTbody').innerHTML=html||`<tr><td colspan="12" class="nodata">결과 없음</td></tr>`;
+  if(list.length>MAX)$('#qfTbody').innerHTML+=`<tr><td colspan="12" class="nodata" style="color:var(--blue)">상위 ${MAX}건 표시 (전체 ${list.length.toLocaleString()}건)</td></tr>`;
+}
+
+/* ---- 업체별 ---- */
+function renderVendor(snap){
+  const auto=byVendorFromRegions(snap.regions);
+  $('#vendorAutoTable').innerHTML=`<table class="kdt"><thead><tr><th>담당업체</th><th>시군구수</th><th>대상건수</th><th>누적점검</th><th>진도율</th></tr></thead><tbody>
+  ${auto.map(v=>`<tr><td>${v.name}</td><td class="c">${v.count}</td><td>${fmt(v.target)}</td><td>${fmt(v.cumulative)}</td><td>${pct(v.progress)}</td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---- 검색 ---- */
+function renderSidoChips(regions){
+  const sidos=['전체',...new Set(regions.map(r=>r.sido))];
+  $('#sidoChips').innerHTML=sidos.map(s=>`<button class="chip ${s===filter.sido?'active':''}" data-sido="${s}">${s}</button>`).join('');
+  $$('#sidoChips .chip').forEach(b=>b.addEventListener('click',()=>{
+    filter.sido=b.dataset.sido;$$('#sidoChips .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSearch();
+  }));
+}
+function renderSearch(){
+  if(!SNAP)return;
+  let list=SNAP.regions.filter(r=>{
+    if(filter.sido!=='전체'&&r.sido!==filter.sido)return false;
+    if(filter.search&&!r.sigungu.includes(filter.search)&&!(r.vendor||'').includes(filter.search))return false;
+    return true;
+  });
+  const regionCard = r => `<div class="region-card">
+    <div class="top"><div class="nm"><span>${r.sido}</span>${r.sigungu}</div><div class="co">${r.vendor||'미배정'}</div></div>
+    <div class="stats"><div>대상 <b>${fmt(r.target)}</b></div><div>누적 <b>${fmt(r.cumulative)}</b></div><div>금주 <b>${fmt(r.thisWeek)}</b></div><div>잔여 <b>${fmt(r.remain)}</b></div></div>
+    <div class="pbar"><i style="width:${Math.min(pctNum(r.progress),100).toFixed(1)}%"></i></div>
+    <div class="pct">${pct(r.progress)} ${statusBadge(r)}</div></div>`;
+
+  if(filter.sort==='completed'){
+    const done=list.filter(r=>r.progress>=1);
+    const rest=[...list.filter(r=>r.progress<1)].sort((a,b)=>b.progress-a.progress);
+    const html=
+      (done.length? `<div class="section-title" style="margin:0 0 8px;">완료 지자체 <span class="tag">${done.length}개</span></div>`+done.map(regionCard).join('') : '')
+      + (rest.length? `<div class="section-title">진행중 지자체 <span class="tag">${rest.length}개</span></div>`+rest.map(regionCard).join('') : '');
+    $('#searchList').innerHTML = html || '<div class="empty">조건에 맞는 지역이 없습니다</div>';
+    return;
+  }
+  if(filter.sort==='progressAsc')list=[...list].sort((a,b)=>a.progress-b.progress);
+  if(filter.sort==='remainDesc')list=[...list].sort((a,b)=>b.remain-a.remain);
+  $('#searchList').innerHTML=list.map(regionCard).join('')||'<div class="empty">조건에 맞는 지역이 없습니다</div>';
+}
+
+/* ---- 이벤트 ---- */
+$$('.subtabs button').forEach(b=>b.addEventListener('click',()=>{
+  $$('.subtabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  ['kais','qfield','vendor','search'].forEach(m=>$('#mode-'+m).classList.toggle('hidden',m!==b.dataset.mode));
+}));
+$('#searchInput').addEventListener('input',e=>{filter.search=e.target.value.trim();renderSearch();});
+$$('.sortbar button').forEach(b=>b.addEventListener('click',()=>{
+  $$('.sortbar button').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter.sort=b.dataset.sort;renderSearch();
+}));
+
+// KAIS 업로드
+$('#pickKaisBtn').addEventListener('click',()=>$('#kaisInput').click());
+$('#kaisInput').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    const rows=parseKaisXlsx(ev.target.result);
+    if(!rows||!rows.length){alert('KAIS 설치현황 파일 형식이 맞지 않습니다.');return;}
+    KAIS_ROWS=rows;
+    $('#kaisInfo').textContent='✅ '+file.name+' · '+rows.length.toLocaleString()+'건';
+    $('#clearKaisBtn').classList.remove('hidden');
+    // 시군구 필터 갱신
+    const sgs=[...new Set(rows.map(r=>r.sigungu))].filter(Boolean).sort();
+    $('#kF_sigungu').innerHTML='<option value="">전체</option>'+sgs.map(s=>`<option value="${s}">${s}</option>`).join('');
+    renderKais();
+  };
+  rd.readAsArrayBuffer(file);
+});
+$('#clearKaisBtn').addEventListener('click',()=>{
+  KAIS_ROWS=[];$('#kaisTbody').innerHTML='<tr><td colspan="7" class="nodata">KAIS 파일을 업로드하세요</td></tr>';
+  $('#kaisInfo').textContent='';$('#clearKaisBtn').classList.add('hidden');$('#kais_cnt').textContent='0건';$('#kaisInput').value='';
+});
+['kF_status','kF_sigungu'].forEach(id=>$('#'+id).addEventListener('change',renderKais));
+$('#kF_q').addEventListener('input',renderKais);
+
+// GPKG 업로드
+$('#pickGpkgBtn').addEventListener('click',()=>$('#gpkgInput').click());
+$('#gpkgInput').addEventListener('change',async e=>{
+  const file=e.target.files[0];if(!file)return;
+  $('#qfInfo').textContent='⏳ GPKG 파일 로딩 중…';
+  try{
+    const buf=await file.arrayBuffer();
+    const raw=await parseGpkg(buf);
+    if(!raw||!raw.length){$('#qfInfo').textContent='❌ GPKG에서 데이터를 읽지 못했습니다.';return;}
+    QF_ROWS=raw.map(toQfRow).filter(r=>r.frf||r.rn);
+    $('#qfInfo').textContent='✅ '+file.name+' · '+QF_ROWS.length.toLocaleString()+'건';
+    $('#clearQfBtn').classList.remove('hidden');renderQf();
+  }catch(err){$('#qfInfo').textContent='❌ '+err.message;console.error(err);}
+});
+
+// DBF 업로드
+$('#pickDbfBtn').addEventListener('click',()=>$('#dbfInput').click());
+$('#dbfInput').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    try{
+      const raw=parseDbf(ev.target.result);
+      if(!raw||!raw.length){alert('DBF 파일을 읽을 수 없습니다.');return;}
+      QF_ROWS=raw.map(toQfRow).filter(r=>r.frf||r.rn);
+      $('#qfInfo').textContent='✅ '+file.name+' · '+QF_ROWS.length.toLocaleString()+'건';
+      $('#clearQfBtn').classList.remove('hidden');renderQf();
+    }catch(err){alert('DBF 오류: '+err.message);}
+  };
+  rd.readAsArrayBuffer(file);
+});
+
+$('#clearQfBtn').addEventListener('click',()=>{
+  QF_ROWS=[];$('#qfTbody').innerHTML='<tr><td colspan="12" class="nodata">GPKG 또는 DBF 파일을 업로드하세요</td></tr>';
+  $('#qfInfo').textContent='';$('#clearQfBtn').classList.add('hidden');$('#qf_cnt').textContent='0건';$('#gpkgInput').value='';$('#dbfInput').value='';
+});
+['qF_status','qF_reason'].forEach(id=>$('#'+id).addEventListener('change',renderQf));
+$('#qF_q').addEventListener('input',renderQf);
+
+// chiprow 드래그 스크롤
+(function(){
+  function addDrag(el){
+    if(!el)return;
+    let on=false,sx=0,ss=0;
+    el.addEventListener('mousedown',e=>{on=true;sx=e.clientX;ss=el.scrollLeft;el.style.cursor='grabbing';e.preventDefault();});
+    window.addEventListener('mouseup',()=>{if(on){on=false;el.style.cursor='grab';}});
+    window.addEventListener('mousemove',e=>{if(on)el.scrollLeft=ss-(e.clientX-sx);});
+  }
+  document.querySelectorAll('.chiprow').forEach(addDrag);
+})();
+
+/* ---- 데이터 로드 ---- */
+async function loadDate(date){
+  const snap=await DataLayer.getWeek(date);if(!snap)return;
+  SNAP=snap;$('#appSub').textContent='기준일자 '+snap.baseDate;
+  renderVendor(snap);renderSidoChips(snap.regions);renderSearch();
+}
+
+(async function(){
+  const sel=$('#weekSelect');
+  const{weeks,current}=await buildWeekSelector(sel,loadDate);
+  if(!weeks.length){$('#emptyState').classList.remove('hidden');$('#appSub').textContent='데이터 없음';return;}
+  $('#dataState').classList.remove('hidden');
+  await loadDate(current);
+})();
+</script>
+</body>
+</html>

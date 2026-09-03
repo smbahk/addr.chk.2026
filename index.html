@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>요약 · 기초번호판 보고 시스템</title>
+<link rel="icon" href="data:,">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="titles">
+    <h1>전체 현황 요약</h1>
+    <div class="sub" id="appSub">불러오는 중…</div>
+  </div>
+  <div class="weeksel"><select id="weekSelect"></select></div>
+</div>
+
+<div class="content">
+  <div id="emptyState" class="hidden">
+    <div class="card card-pad" style="text-align:center;">
+      <div class="empty">아직 업로드된 데이터가 없습니다.</div>
+      <a class="btn" href="upload.html" style="margin-top:6px;">업로드 페이지로 이동</a>
+    </div>
+  </div>
+
+  <div id="dataState" class="hidden">
+    <div class="kpi-grid" id="summaryKpis"></div>
+
+    <div class="section-title">광역시도별 진도</div>
+    <div class="card"><div class="bars" id="sidoBars"></div></div>
+
+
+    <div class="section-title">담당업체별 진도 <span class="tag">시군구별_진도현황 기준 자동집계</span></div>
+    <div class="card"><div class="bars" id="vendorBars"></div></div>
+  </div>
+</div>
+
+<div class="tabbar" id="tabbar"></div>
+
+<script src="assets/app.js"></script>
+<script>
+renderNav('view');
+
+function renderSummary(snap) {
+  const t = totals(snap.regions);
+  $('#appSub').textContent = `${snap.fileName || ''} · 기준일자 ${snap.baseDate}`;
+
+  $('#summaryKpis').innerHTML = [
+    kpiCard('대상 시군구', t.count + '개'),
+    kpiCard('전체 대상건수', fmt(t.target)),
+    kpiCard('누적 점검건수', fmt(t.cumulative), 'ok'),
+    kpiCard('전체 진도율', pct(t.progress), t.progress < 0.5 ? 'warn' : 'ok'),
+    kpiCard('금주 점검건수', fmt(t.thisWeek)),
+    kpiCard('잔여건수', fmt(t.remain), t.remain > 0 ? 'danger' : 'ok'),
+  ].join('');
+
+  const sg = bySido(snap.regions);
+  $('#sidoBars').innerHTML = sg.map(m => barRow(m.sido, m.progress)).join('') || `<div class="empty">데이터가 없습니다</div>`;
+
+
+
+  const vg = byVendorFromRegions(snap.regions);
+  $('#vendorBars').innerHTML = vg.map(v => barRow(v.name, v.progress)).join('') || `<div class="empty">담당업체 데이터가 없습니다</div>`;
+}
+
+async function loadDate(date) {
+  const snap = await DataLayer.getWeek(date);
+  if (!snap) return;
+  renderSummary(snap);
+}
+
+(async function init() {
+  const sel = $('#weekSelect');
+  const { weeks, current } = await buildWeekSelector(sel, loadDate);
+  if (weeks.length === 0) {
+    $('#emptyState').classList.remove('hidden');
+    $('#appSub').textContent = '데이터 없음';
+    return;
+  }
+  $('#dataState').classList.remove('hidden');
+  await loadDate(current);
+})();
+</script>
+</body>
+</html>
