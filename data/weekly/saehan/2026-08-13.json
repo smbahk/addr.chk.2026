@@ -1,0 +1,97 @@
+{
+  "company": "새한항업",
+  "slug": "saehan",
+  "baseDate": "2026-08-13",
+  "weekStart": "2026-08-07",
+  "weekEnd": "2026-08-13",
+  "uploadedAt": "2026-08-14T01:57:53.427Z",
+  "reportText": {
+    "reporter": "김경휘",
+    "weeklyWork": "- 작업지침서 검토 및 숙지",
+    "plan": "- 김제, 계룡 지역 3명 투입 조사 실시",
+    "note": ""
+  },
+  "regions": [
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "장성군",
+      "target": 1449,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전북특별자치도",
+      "sigungu": "김제시",
+      "target": 5801,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전북특별자치도",
+      "sigungu": "남원시",
+      "target": 768,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전북특별자치도",
+      "sigungu": "순창군",
+      "target": 1333,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청남도",
+      "sigungu": "계룡시",
+      "target": 296,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청남도",
+      "sigungu": "당진시",
+      "target": 693,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청남도",
+      "sigungu": "보령시",
+      "target": 379,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청남도",
+      "sigungu": "서산시",
+      "target": 347,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청남도",
+      "sigungu": "태안군",
+      "target": 1502,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    }
+  ]
+}
