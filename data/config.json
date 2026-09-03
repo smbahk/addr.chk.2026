@@ -1,0 +1,368 @@
+{
+  "weekdayStart": "금요일",
+  "weekdayEnd": "목요일",
+  "fileNamePattern": "[업체명]기초번호판설치점검_주간보고_YYYYMMDD",
+  "companies": [
+    {
+      "name": "대국지아이에스",
+      "regions": [
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "동해시",
+          "target": 405
+        },
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "영월군",
+          "target": 2397
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "남해군",
+          "target": 1015
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "밀양시",
+          "target": 1104
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "사천시",
+          "target": 1443
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "양산시",
+          "target": 782
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "의령군",
+          "target": 974
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "진주시",
+          "target": 787
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "창원시 마산합포구",
+          "target": 312
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "창원시 마산회원구",
+          "target": 392
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "창원시 성산구",
+          "target": 43
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "창원시 의창구",
+          "target": 76
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "창원시 진해구",
+          "target": 208
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "하동군",
+          "target": 968
+        },
+        {
+          "sido": "경상남도",
+          "sigungu": "함양군",
+          "target": 589
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "경산시",
+          "target": 2124
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "구미시",
+          "target": 865
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "영덕군",
+          "target": 814
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "영양군",
+          "target": 471
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "영주시",
+          "target": 2328
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "예천군",
+          "target": 976
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "울진군",
+          "target": 398
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "청도군",
+          "target": 60
+        },
+        {
+          "sido": "경상북도",
+          "sigungu": "청송군",
+          "target": 2007
+        }
+      ]
+    },
+    {
+      "name": "내가시스템",
+      "regions": [
+        {
+          "sido": "경기도",
+          "sigungu": "김포시",
+          "target": 1959
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "성남시 분당구",
+          "target": 11054
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "성남시 수정구",
+          "target": 450
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "성남시 중원구",
+          "target": 20
+        },
+        {
+          "sido": "서울특별시",
+          "sigungu": "금천구",
+          "target": 73
+        },
+        {
+          "sido": "서울특별시",
+          "sigungu": "서대문구",
+          "target": 163
+        },
+        {
+          "sido": "서울특별시",
+          "sigungu": "영등포구",
+          "target": 211
+        }
+      ]
+    },
+    {
+      "name": "더퍼스트아이씨티",
+      "regions": [
+        {
+          "sido": "경기도",
+          "sigungu": "안양시 동안구",
+          "target": 141
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "안양시 만안구",
+          "target": 210
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "용인시 기흥구",
+          "target": 388
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "용인시 수지구",
+          "target": 218
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "용인시 처인구",
+          "target": 3543
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "광양시",
+          "target": 1484
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "구례군",
+          "target": 395
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "나주시",
+          "target": 683
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "목포시",
+          "target": 357
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "신안군",
+          "target": 519
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "장흥군",
+          "target": 640
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "함평군",
+          "target": 660
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "해남군",
+          "target": 1530
+        },
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "화순군",
+          "target": 994
+        }
+      ]
+    },
+    {
+      "name": "새한항업",
+      "regions": [
+        {
+          "sido": "전남광주통합특별시",
+          "sigungu": "장성군",
+          "target": 1449
+        },
+        {
+          "sido": "전북특별자치도",
+          "sigungu": "김제시",
+          "target": 5801
+        },
+        {
+          "sido": "전북특별자치도",
+          "sigungu": "남원시",
+          "target": 768
+        },
+        {
+          "sido": "전북특별자치도",
+          "sigungu": "순창군",
+          "target": 1333
+        },
+        {
+          "sido": "충청남도",
+          "sigungu": "계룡시",
+          "target": 296
+        },
+        {
+          "sido": "충청남도",
+          "sigungu": "당진시",
+          "target": 693
+        },
+        {
+          "sido": "충청남도",
+          "sigungu": "보령시",
+          "target": 379
+        },
+        {
+          "sido": "충청남도",
+          "sigungu": "서산시",
+          "target": 347
+        },
+        {
+          "sido": "충청남도",
+          "sigungu": "태안군",
+          "target": 1502
+        }
+      ]
+    },
+    {
+      "name": "웨이즈원",
+      "regions": [
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "고성군",
+          "target": 1995
+        },
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "양구군",
+          "target": 574
+        },
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "양양군",
+          "target": 244
+        },
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "춘천시",
+          "target": 1611
+        },
+        {
+          "sido": "강원특별자치도",
+          "sigungu": "홍천군",
+          "target": 1839
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "동두천시",
+          "target": 461
+        },
+        {
+          "sido": "경기도",
+          "sigungu": "여주시",
+          "target": 993
+        },
+        {
+          "sido": "충청남도",
+          "sigungu": "금산군",
+          "target": 1462
+        },
+        {
+          "sido": "충청북도",
+          "sigungu": "제천시",
+          "target": 1456
+        },
+        {
+          "sido": "충청북도",
+          "sigungu": "청주시 상당구",
+          "target": 552
+        },
+        {
+          "sido": "충청북도",
+          "sigungu": "청주시 서원구",
+          "target": 79
+        },
+        {
+          "sido": "충청북도",
+          "sigungu": "청주시 청원구",
+          "target": 610
+        }
+      ]
+    },
+    {
+      "name": "대한지리학회",
+      "reportOnly": true,
+      "regions": []
+    }
+  ],
+  "adminPin": "2907"
+}
