@@ -1,0 +1,124 @@
+{
+  "company": "웨이즈원",
+  "slug": "ways1",
+  "baseDate": "2026-07-16",
+  "weekStart": "2026-07-10",
+  "weekEnd": "2026-07-16",
+  "uploadedAt": "2026-07-17T03:43:04.180Z",
+  "reportText": {
+    "reporter": "조준래",
+    "weeklyWork": "- 착수보고회\r\n- 현장조사 작업계획",
+    "plan": "- 기초번호판 측량구간 선정\r\n- 현장조사 작업계획 및 준비\r\n- 현장조사팀 안전교육 및 작업매뉴얼 교육",
+    "note": ""
+  },
+  "regions": [
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "고성군",
+      "target": 1995,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "양구군",
+      "target": 574,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "양양군",
+      "target": 244,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "춘천시",
+      "target": 1611,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "홍천군",
+      "target": 1839,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "동두천시",
+      "target": 461,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "여주시",
+      "target": 993,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청남도",
+      "sigungu": "금산군",
+      "target": 1462,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청북도",
+      "sigungu": "제천시",
+      "target": 1456,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청북도",
+      "sigungu": "청주시 상당구",
+      "target": 552,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청북도",
+      "sigungu": "청주시 서원구",
+      "target": 79,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "충청북도",
+      "sigungu": "청주시 청원구",
+      "target": 610,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    }
+  ]
+}
