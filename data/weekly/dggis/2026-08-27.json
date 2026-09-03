@@ -1,0 +1,232 @@
+{
+  "company": "대국지아이에스",
+  "slug": "dggis",
+  "baseDate": "2026-08-27",
+  "weekStart": "2026-08-21",
+  "weekEnd": "2026-08-27",
+  "uploadedAt": "2026-08-28T00:28:20.141Z",
+  "reportText": {
+    "reporter": "노태완",
+    "weeklyWork": "- 작업지침서 업데이트\r\n  > QR코드 관련 및 점검상태에 따른 점검결과 입력 부분 추가\r\n- 측량 대상 기초번호판 리스트 선별(1,249건)\r\n- 작업지침서 요약본 작업\r\n- 로우데이터 항목 요청 양식 작성\r\n- 현장조사 완료 지자체 검수\r\n- 동해시, 양산시, 의령군, 영덕군, 영양군, 울진군, 청도군 현장조사",
+    "plan": "- 측량 대상 기초번호판 추가 선별\r\n- 동해시, 영월군, 영양군, 양산시, 영덕군, 진주시, 창원시, 구미시, 울진군 현장조사 예정",
+    "note": "- 컨소사별 현장조사 완료된 지자체 점검결과 검수 요청\r\n\r\n### 의령군 수량 차이 ###\r\n > 기존: 974건\r\n > 변경: 970건 - 카이스 조회 970건만 조회 됨\r\n > 변경내역: 능인로 130, 마산로3길 3, 진의로 1874, 청정로 2021"
+  },
+  "regions": [
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "동해시",
+      "target": 405,
+      "thisWeek": 200,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "강원특별자치도",
+      "sigungu": "영월군",
+      "target": 2397,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "남해군",
+      "target": 1015,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "밀양시",
+      "target": 1104,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "사천시",
+      "target": 1443,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "양산시",
+      "target": 782,
+      "thisWeek": 510,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "의령군",
+      "target": 974,
+      "thisWeek": 970,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "진주시",
+      "target": 787,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "창원시 마산합포구",
+      "target": 312,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "창원시 마산회원구",
+      "target": 392,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "창원시 성산구",
+      "target": 43,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "창원시 의창구",
+      "target": 76,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "창원시 진해구",
+      "target": 208,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "하동군",
+      "target": 968,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상남도",
+      "sigungu": "함양군",
+      "target": 589,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "경산시",
+      "target": 2124,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "구미시",
+      "target": 865,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "영덕군",
+      "target": 814,
+      "thisWeek": 132,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "영양군",
+      "target": 471,
+      "thisWeek": 140,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "영주시",
+      "target": 2328,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "예천군",
+      "target": 976,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "울진군",
+      "target": 398,
+      "thisWeek": 395,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "청도군",
+      "target": 60,
+      "thisWeek": 60,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경상북도",
+      "sigungu": "청송군",
+      "target": 2007,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    }
+  ]
+}
