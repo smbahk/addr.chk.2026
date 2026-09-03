@@ -1,0 +1,142 @@
+{
+  "company": "더퍼스트아이씨티",
+  "slug": "thefirst",
+  "baseDate": "2026-07-16",
+  "weekStart": "2026-07-10",
+  "weekEnd": "2026-07-16",
+  "uploadedAt": "2026-07-17T03:42:47.070Z",
+  "reportText": {
+    "reporter": "박성규",
+    "weeklyWork": "- 업무분장 물량확인\r\n- 조사팀 안전교육\r\n- 현장조사 작업계획 및 준비",
+    "plan": "- 현장 현황파악 및 측량 계획\r\n- 매뉴얼 교육\r\n- 경기도 지역 조사 및 측량",
+    "note": ""
+  },
+  "regions": [
+    {
+      "sido": "경기도",
+      "sigungu": "안양시 동안구",
+      "target": 141,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "안양시 만안구",
+      "target": 210,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "용인시 기흥구",
+      "target": 388,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "용인시 수지구",
+      "target": 218,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "경기도",
+      "sigungu": "용인시 처인구",
+      "target": 3543,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "광양시",
+      "target": 1484,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "구례군",
+      "target": 395,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "나주시",
+      "target": 683,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "목포시",
+      "target": 357,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "신안군",
+      "target": 519,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "장흥군",
+      "target": 640,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "함평군",
+      "target": 660,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "해남군",
+      "target": 1530,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    },
+    {
+      "sido": "전남광주통합특별시",
+      "sigungu": "화순군",
+      "target": 994,
+      "thisWeek": 0,
+      "normal": 0,
+      "damage": 0,
+      "lost": 0
+    }
+  ]
+}
